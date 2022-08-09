@@ -1,0 +1,58 @@
+version: '3'
+services:
+ mariadb:
+  image: mariadb
+  volumes:
+   - ~/data/mariadb:/var/lib/mysql
+  restart: always
+  environment:
+   DBASE_LOGIN: "rhoke"
+   DBASE_PSWD: "rhoke123"
+  ports:
+          - "3307:3306"
+  build:
+   context: ./requirements/mariadb
+   dockerfile: Dockerfile
+  networks:
+   - some-net
+  
+ nginx:
+  image: nginx
+  restart: always
+  depends_on:
+   - wordpress
+  ports:
+   - "443:443"
+  volumes:
+   - ~/data/wp:/var/www/wordpress
+  build:
+   context: ./requirements/nginx
+   dockerfile: Dockerfile
+  networks:
+   - some-net
+  extra_hosts:
+   - "rhoke.42.fr:127.0.0.1"
+ 
+ wordpress:
+  image: wordpress:inc
+  depends_on:
+   - mariadb
+  volumes:
+   - ~/data/wp:/var/www/wordpress
+  restart: always
+  environment:
+   WP_USER_LOGIN: "user"
+   WP_USER_PSWD: "user123"
+   DBASE_LOGIN: "rhoke"
+   DBASE_PSWD: "rhoke123"
+  ports:
+   - "9000:9000"
+  build:
+   context: ./requirements/wordpress
+   dockerfile: Dockerfile
+  networks:
+   - some-net
+
+networks:
+ some-net:
+  driver: bridge

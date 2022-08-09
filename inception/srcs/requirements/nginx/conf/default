@@ -1,0 +1,27 @@
+server {
+	server_name rhoke.42.fr;
+	listen 443 ssl;
+	listen [::]:443 ssl;
+	
+	
+	try_files $uri $uri/ =404;
+	error_page 497 https://$host:443$request_uri;
+	
+	ssl_certificate /etc/ssl/certs/localhost.crt;
+	ssl_certificate_key /etc/ssl/private/localhost.key;
+	#ssl_session_timeout 1d;
+	
+	ssl_protocols TLSv1.2;
+	index index.php;
+	#autiondex.on;
+	root /var/www/wordpress/;
+	
+	location ~ \.php$ {
+		try_files $uri $uri/ =404;
+		include fastcgi.conf;
+		fastcgi_pass wordpress:9000;
+		}
+	#ssl_prefer_server_ciphers off;
+	
+	#add_header Strict-Transport_Security "max-age=63072000" always;
+	}
